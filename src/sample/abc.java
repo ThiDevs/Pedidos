@@ -1,67 +1,83 @@
 package sample;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 class abc {
 
     public static void main(String args[]) throws IOException, InterruptedException {
-        InetAddress inetAddress = InetAddress.getLocalHost();
-        String IP = inetAddress.getHostAddress();
-        System.out.println(IP);
-        String[] a = IP.split("[.]");
-        System.out.println(a[0]);
+        String url = "jdbc:mysql://127.0.0.1:3306/Produtos?useTimezone=true&serverTimezone=UTC";
+        String username = "root";
+        String password = "root";
 
-        String ipSub= a[0]+"."+a[1]+"."+a[2];
-        int timeout=5;
-        ArrayList<String> item = new ArrayList<String>();;
-        for (int i=1;i<255;i++){
-            String hostIP=ipSub + "." + i;
-            System.out.println(hostIP);
+        Connection conn = null;
+        try {
 
-            try {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(hostIP, 7070), 100);
-
-                InputStream is = socket.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-
-                String message = br.readLine();
-                System.out.println("Message received from the server : " + message);
-
-
-                item.add(message);
-
-                while (message != null){
-                    message = br.readLine();
-                    if (message != null) {
-                        System.out.println("Message received from the server : " + message);
-                        item.add(message);
-                    }
-
-                }
-                break;
-            } catch (Exception e){
-
-            }
-
-
-
-
-
-
-
-           // if (InetAddress.getByName(hostIP).isReachable(timeout)){
-               // System.out.println(hostIP);
-           // }
+            conn = DriverManager.getConnection(url, username, password);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        try {
+            assert conn != null;
+            Statement stmt = conn.createStatement();
+            String sql = "select tipo FROM SALGADOS group by tipo";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ResultSet rs = ps.executeQuery();
+            String codigo;
+            HashMap<String, List<String>> Produtos = new HashMap<String, List<String>>();
+            List<String> select = new ArrayList<>();
+            while (rs.next()) {
+                codigo = rs.getString("tipo");
+               // select.add();
+
+
+                PreparedStatement ps2 = conn.prepareStatement("select nome,valor FROM SALGADOS where tipo = '" + codigo + "';");
+
+                ResultSet rs2 = ps2.executeQuery();
+                List<String> results = new ArrayList<>();
+                while (rs2.next()) {
+                    String Nome = rs2.getString("nome");
+                    String Valor = rs2.getString("valor");
+
+                    results.add(Nome + "//" + Valor);
+                }
+                System.out.println(results);
+
+                Produtos.put(codigo,results);
+                ps2.close();
+                rs2.close();
+
+
+                //
+            }
+            ps.close();
+            rs.close();
+
+            System.out.println((String.valueOf(Produtos)).);
+            System.out.println(-159173562);
+            conn.close();
+
+            ServerSocket Servidor2 = new ServerSocket(7070);
+            Socket C2 = Servidor2.accept();
+            PrintWriter writer = new PrintWriter(C2.getOutputStream());
+            writer.write(String.valueOf(Produtos));
+            writer.flush();
+            writer.close();
+
+            C2.close();
+            Servidor2.close();
+
+
+
+        } catch (Exception e) {
+        }
+
     }
+
 }
