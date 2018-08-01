@@ -50,7 +50,7 @@ class abc {
                         String Nome = rs2.getString("nome");
                         String Valor = rs2.getString("valor");
 
-                        results.add(Nome + "//" + Valor);
+                        results.add(Nome + " - " + Valor);
                     }
 
                     Produtos.put(codigo, results);
