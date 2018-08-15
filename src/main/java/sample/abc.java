@@ -71,7 +71,6 @@ class abc {
                 }.getType();
                 Map<String, List<String>> son = new Gson().fromJson(json, mapType);
 
-                //System.out.println(son.get("Doce").toArray()[0]);
 
 
                 conn.close();

@@ -30,7 +30,7 @@ class ABC2 {
             try {
                 assert conn != null;
                 Statement stmt = conn.createStatement();
-                String sql = "select nome FROM pedidos;";
+                String sql = "select setor FROM pedidos group by nome ;";
                 PreparedStatement ps = conn.prepareStatement(sql);
 
                 ResultSet rs = ps.executeQuery();
@@ -38,7 +38,7 @@ class ABC2 {
                 HashMap<String, List<String>> Produtos = new HashMap<String, List<String>>();
                 List<String> select = new ArrayList<String>();
                 while (rs.next()) {
-                    codigo = rs.getString("nome");
+                    codigo = rs.getString("setor");
                     select.add(codigo);
 
                 }
